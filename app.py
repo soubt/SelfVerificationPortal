@@ -53,8 +53,10 @@ def init_db():
         live_photo TEXT,
 
         roll_number TEXT,
-        regulation TEXT,
+        registration_number TEXT,
+
         exam_slip TEXT,
+        affidavit TEXT,
 
         status TEXT DEFAULT 'Pending',
 
@@ -288,7 +290,7 @@ def save_exam_details():
         return redirect("/login")
 
     roll_number = request.form["roll_number"]
-    regulation = request.form["regulation"]
+    registration_number = request.form["registration_number"]
 
     exam_file = ""
 
@@ -349,6 +351,22 @@ def save_exam_details():
 
     return redirect("/dashboard")
 
+affidavit_file = ""
+
+if "affidavit" in request.files:
+
+    file = request.files["affidavit"]
+
+    if file.filename != "":
+
+        affidavit_file = secure_filename(file.filename)
+
+        file.save(
+            os.path.join(
+                DOCUMENT_FOLDER,
+                affidavit_file
+            )
+        )
 
 # -----------------------------
 # ADMIN PANEL
