@@ -92,13 +92,13 @@ required>
 
 <br>
 
-<label>Regulation</label>
+<label>Registration Number</label>
 
 <input
 type="text"
-name="regulation"
+name="registration_number"
 class="form-control"
-value="{{ user['regulation'] or '' }}"
+value="{{ user['registration_number'] or '' }}"
 required>
 
 <br>
@@ -108,6 +108,15 @@ required>
 <input
 type="file"
 name="exam_slip"
+class="form-control">
+
+<br>
+
+<label>Upload Affidavit</label>
+
+<input
+type="file"
+name="affidavit"
 class="form-control">
 
 <br>
