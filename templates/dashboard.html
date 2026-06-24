@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<title>Dashboard</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+</head>
+
+<body>
+
+<div class="container mt-5">
+
+<div class="card shadow">
+
+<div class="card-header bg-primary text-white">
+
+<h3>
+Welcome {{ user['name'] }}
+</h3>
+
+</div>
+
+<div class="card-body">
+
+<h4>User Details</h4>
+
+<div class="row">
+
+<div class="col-md-6">
+
+<label>Name</label> <input class="form-control" value="{{ user['name'] }}" readonly>
+
+</div>
+
+<div class="col-md-6">
+
+<label>Mobile</label> <input class="form-control" value="{{ user['mobile'] }}" readonly>
+
+</div>
+
+</div>
+
+<br>
+
+<label>Email</label> <input class="form-control" value="{{ user['email'] }}" readonly>
+
+<hr>
+
+<h4>Verification Status</h4>
+
+{% if user['status'] == 'Approved' %}
+
+<div class="alert alert-success">
+Verification Approved
+</div>
+
+{% elif user['status'] == 'Rejected' %}
+
+<div class="alert alert-danger">
+Verification Rejected
+</div>
+
+{% else %}
+
+<div class="alert alert-warning">
+Verification Pending
+</div>
+
+{% endif %}
+
+<hr>
+
+<h4>Examination Details</h4>
+
+<form
+action="/save_exam_details"
+method="POST"
+enctype="multipart/form-data">
+
+<label>Roll Number</label>
+
+<input
+type="text"
+name="roll_number"
+class="form-control"
+value="{{ user['roll_number'] or '' }}"
+required>
+
+<br>
+
+<label>Regulation</label>
+
+<input
+type="text"
+name="regulation"
+class="form-control"
+value="{{ user['regulation'] or '' }}"
+required>
+
+<br>
+
+<label>Upload Examination Slip</label>
+
+<input
+type="file"
+name="exam_slip"
+class="form-control">
+
+<br>
+
+<button
+class="btn btn-success">
+
+Save Examination Details
+
+</button>
+
+</form>
+
+<hr>
+
+<h4>Upload Recent Color Photo</h4>
+
+<form
+action="/upload_photo"
+method="POST"
+enctype="multipart/form-data">
+
+<input
+type="file"
+name="photo"
+class="form-control"
+required>
+
+<br>
+
+<button class="btn btn-primary">
+
+Upload Photo
+
+</button>
+
+</form>
+
+<hr>
+
+{% if user['photo'] %}
+
+<h5>Current Uploaded Photo</h5>
+
+<img
+src="{{ url_for('static', filename='uploads/' + user['photo']) }}"
+width="250"
+class="img-thumbnail">
+
+{% endif %}
+
+<hr>
+
+<h3>Live Camera Capture</h3>
+
+<video
+id="video"
+width="400"
+height="300"
+autoplay
+style="border:1px solid #ccc;"> </video>
+
+<br><br>
+
+<button
+class="btn btn-success"
+onclick="capturePhoto()">
+
+Capture Photo
+
+</button>
+
+<button
+class="btn btn-warning"
+onclick="saveCapture()">
+
+Save Photo
+
+</button>
+
+<br><br>
+
+<canvas
+id="canvas"
+width="400"
+height="300"
+style="display:none;"> </canvas>
+
+<img
+id="preview"
+width="400"
+class="img-thumbnail">
+
+<hr>
+
+<a
+href="/logout"
+class="btn btn-danger">
+
+Logout
+
+</a>
+
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+navigator.mediaDevices
+.getUserMedia({video:true})
+.then(function(stream){
+
+document
+.getElementById("video")
+.srcObject = stream;
+
+})
+.catch(function(){
+
+alert("Camera Permission Denied");
+
+});
+
+function capturePhoto(){
+
+const canvas =
+document.getElementById("canvas");
+
+const video =
+document.getElementById("video");
+
+const ctx =
+canvas.getContext("2d");
+
+ctx.drawImage(video,0,0,400,300);
+
+const image =
+canvas.toDataURL("image/png");
+
+document
+.getElementById("preview")
+.src = image;
+
+}
+
+function saveCapture(){
+
+let image =
+document
+.getElementById("preview")
+.src;
+
+if(image==""){
+
+alert("Please Capture Photo First");
+return;
+
+}
+
+fetch("/save_capture",{
+
+method:"POST",
+
+headers:{
+"Content-Type":
+"application/x-www-form-urlencoded"
+},
+
+body:
+"image="+encodeURIComponent(image)
+
+})
+
+.then(response => response.json())
+
+.then(data => {
+
+if(data.status=="success"){
+
+alert(
+"Live Photo Saved Successfully"
+);
+
+}else{
+
+alert(
+"Failed To Save Photo"
+);
+
+}
+
+});
+
+}
+
+</script>
+
+</body>
+</html>
