@@ -37,8 +37,9 @@ Admin Dashboard
 <th>Mobile</th>
 <th>Email</th>
 <th>Roll No</th>
-<th>Regulation</th>
+<th>Registration No</th>
 <th>Exam Slip</th>
+<th>Affidavit</th>
 <th>Profile Photo</th>
 <th>Live Photo</th>
 <th>Status</th>
@@ -64,7 +65,7 @@ Admin Dashboard
 
 <td>{{ user['roll_number'] or '-' }}</td>
 
-<td>{{ user['regulation'] or '-' }}</td>
+<td>{{ user['registration_number'] or '-' }}</td>
 
 <td>
 
@@ -82,6 +83,27 @@ View Slip
 {% else %}
 
 No Slip
+
+{% endif %}
+
+</td>
+
+<td>
+
+{% if user['affidavit'] %}
+
+<a
+href="{{ url_for('static', filename='documents/' + user['affidavit']) }}"
+target="_blank"
+class="btn btn-secondary btn-sm">
+
+View Affidavit
+
+</a>
+
+{% else %}
+
+No Affidavit
 
 {% endif %}
 
