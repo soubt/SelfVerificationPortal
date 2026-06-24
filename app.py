@@ -289,16 +289,18 @@ def save_exam_details():
     if "user_id" not in session:
         return redirect("/login")
 
-    roll_number = request.form["roll_number"]
-    registration_number = request.form["registration_number"]
+    roll_number = request.form.get("roll_number", "")
+    registration_number = request.form.get("registration_number", "")
 
     exam_file = ""
+    affidavit_file = ""
 
+    # Exam Slip Upload
     if "exam_slip" in request.files:
 
         file = request.files["exam_slip"]
 
-        if file.filename != "":
+        if file and file.filename:
 
             exam_file = secure_filename(file.filename)
 
@@ -309,40 +311,41 @@ def save_exam_details():
                 )
             )
 
+    # Affidavit Upload
+    if "affidavit" in request.files:
+
+        file = request.files["affidavit"]
+
+        if file and file.filename:
+
+            affidavit_file = secure_filename(file.filename)
+
+            file.save(
+                os.path.join(
+                    DOCUMENT_FOLDER,
+                    affidavit_file
+                )
+            )
+
     conn = get_db()
     cur = conn.cursor()
 
-    if exam_file:
-
-        cur.execute("""
-        UPDATE users
-        SET
-        roll_number=?,
-        regulation=?,
-        exam_slip=?
-        WHERE id=?
-        """,
-        (
-            roll_number,
-            regulation,
-            exam_file,
-            session["user_id"]
-        ))
-
-    else:
-
-        cur.execute("""
-        UPDATE users
-        SET
-        roll_number=?,
-        regulation=?
-        WHERE id=?
-        """,
-        (
-            roll_number,
-            regulation,
-            session["user_id"]
-        ))
+    cur.execute("""
+    UPDATE users
+    SET
+    roll_number=?,
+    registration_number=?,
+    exam_slip=?,
+    affidavit=?
+    WHERE id=?
+    """,
+    (
+        roll_number,
+        registration_number,
+        exam_file,
+        affidavit_file,
+        session["user_id"]
+    ))
 
     conn.commit()
     conn.close()
@@ -350,23 +353,6 @@ def save_exam_details():
     flash("Details Saved Successfully")
 
     return redirect("/dashboard")
-
-affidavit_file = ""
-
-if "affidavit" in request.files:
-
-    file = request.files["affidavit"]
-
-    if file.filename != "":
-
-        affidavit_file = secure_filename(file.filename)
-
-        file.save(
-            os.path.join(
-                DOCUMENT_FOLDER,
-                affidavit_file
-            )
-        )
 
 # -----------------------------
 # ADMIN PANEL
